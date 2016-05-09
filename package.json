@@ -1,0 +1,28 @@
+{
+  "name": "forward-http",
+  "version": "0.1.0",
+  "description": "Forward HTTP requests",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/wacky6/forward-http.git"
+  },
+  "keywords": [
+    "http",
+    "forward",
+    "reverse-proxy"
+  ],
+  "author": "wacky6",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wacky6/forward-http/issues"
+  },
+  "homepage": "https://github.com/wacky6/forward-http#readme",
+  "devDependencies": {
+    "mocha": "^2.4.5",
+    "request": "^2.72.0"
+  }
+}
