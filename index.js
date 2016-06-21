@@ -3,6 +3,12 @@
 const request = require('http').request
 const parse = require('url').parse
 
+const H2_DEPRECATED_HEADERS = [
+    'connection', 'keep-alive',
+    'proxy-connection', 'transfer-encoding',
+    'upgrade'
+]
+
 /* dest: destination url
  * req:  http.IncomingMessage
  * res:  http.ServerResponse
@@ -25,8 +31,13 @@ module.exports = function(dest, req, res) {
     req.pipe(
         request(opts, (_res)=>{
             res.statusCode = _res.statusCode
-            for (let i=0; i!=_res.rawHeaders.length; i+=2)
-                res.setHeader(_res.rawHeaders[i], _res.rawHeaders[i+1])
+            /* guess spdy/h2, remove deprecated headers
+             * refer: https://http2.github.io/http2-spec/
+             */
+            if (res.spdyStream || res.push instanceof Function)
+                H2_DEPRECATED_HEADERS.forEach( header => delete _res.headers[header] )
+            for (let header in _res.headers)
+                res.setHeader(header, _res.headers[header])
             _res.pipe(res)
         })
         .on('error', (err)=>{

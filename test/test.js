@@ -24,6 +24,8 @@ describe('http-fowarding', function(){
                 res.setHeader('Content-Length', buf.length)
                 res.setHeader('Content-Type',   'application/json')
                 res.setHeader('X-Extra',        'xxx')
+                if (req.url.match(/\/simulate-h2/i))
+                    res.setHeader('Connection', 'Close')
                 res.end(buf)
             } )
         } ).listen(10000, next)
@@ -31,6 +33,8 @@ describe('http-fowarding', function(){
 
     before(function(next) {
         svrFwd = createServer( (req, res)=>{
+            if (req.url.match(/\/simulate-h2/i))
+                res.push = function push(){}
             if (req.url.startsWith('/502'))
                 forward('http://localhost:10002'+req.url, req, res)
             else
@@ -64,6 +68,13 @@ describe('http-fowarding', function(){
     it('return 502 on error', function(done){
         request.get('http://localhost:10001/502', (err, res, body)=>{
             strictEqual(res.statusCode, 502)
+            done()
+        })
+    })
+
+    it('strip legacy http/1.x headers, if res is h2/spdy', function(done){
+        request.get('http://localhost:10001/simulate-h2/resp', (err, res, body)=>{
+            strictEqual(typeof res.headers.connection, 'undefined')
             done()
         })
     })
